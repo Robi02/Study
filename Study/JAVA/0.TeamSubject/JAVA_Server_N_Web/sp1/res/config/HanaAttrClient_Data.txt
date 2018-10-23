@@ -1,0 +1,14 @@
+COMMENT	STRING	STRING	STRING	INT	INT	BYTE	COMMENT
+순번	항목명	항목명(Code)	종류	시작인덱스	길이	기본값	비고
+1	식별코드	d_idCode	X	0	1	D	'D'
+2	데이터 일련번호	d_dataSerialNum	9	1	6		
+3	은행코드	d_bankCode	9	7	3		
+4	계좌번호	d_accountNum	X	10	14		hyphen제외하고 숫자만 투입
+5	이체요청금액	d_requestTransferPrice	9	24	11		
+6	실제이체금액	d_realTransferPrice	9	35	11		당행이 처리후 부여. 업체는 '0'으로 투입
+7	주민/사업자번호	d_recieverIdNum	X	46	13		수취인의 주민/사업자번호
+8	처리결과	d_processingResult	X	59	1		"당행이 부여(정상:Y, 불능:N)"
+9	불능코드	d_disableCode	X	60	4		
+10	적요	d_briefs	X	64	12		통장기장내용: 전산부와 협의후 투입
+11	공란	d_blank	X	76	4		
+12	개행문자	d_newLine	X	80	2		CR+LF

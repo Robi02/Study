@@ -1,0 +1,1 @@
+gcc -o ChatAES.exe chat_aes_main.c -lncryptor -lncoder -L lib -I include -I include/ncoder -I include/ncryptor

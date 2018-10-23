@@ -1,0 +1,20 @@
+COMMENT	STRING	STRING	STRING	INT	INT	BYTE	COMMENT
+순번	항목명	항목명(Code)	종류	시작인덱스	길이	기본값	비고
+1	식별코드	h_idCode	X	0	1	S	'S'
+2	업무구분	h_taskComp	X	1	2	10	'10'
+3	은행코드	h_bankCode	9	3	3	081	
+4	업체코드	h_companyCode	X	6	8	KSANP001	
+5	이체의뢰일자	h_comissioningDate	9	14	6	180404	데이터 전송일(YYMMDD)
+6	이체처리일자	h_processingDate	9	20	6		이체 처리일
+7	모계좌번호	h_motherAccountNum	9	26	14	25791005094404	Hyphen을 제외하고 숫자만 투입
+8	이체종류	h_transferType	9	40	2	51	주1)
+9	회사번호	h_companyNum	9	42	6	000000	당행이 부여하므로 업체는 '0'투입
+10	처리결과통보구분	h_resultNotifyType	X	48	1	1	"'1': 모든데이터,'2': 에러분, '3':정상분"
+11	전송차수	h_transferCnt	X	49	1	1	'1'
+12	비밀번호	h_password	X	50	8	4380	"업체에서 임의로 설정.(모계좌비밀번호,숫자'0000'제외) "
+13	공란	h_blank	X	58	19		
+14	Format	h_format	X	77	1	1	'1'
+15	VAN	h_van	X	78	2		주2) 'KC'
+16	개행문자	h_newLine	X	80	2		CR+LF
+							
+							

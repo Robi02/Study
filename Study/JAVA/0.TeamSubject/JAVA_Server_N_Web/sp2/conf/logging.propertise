@@ -1,0 +1,28 @@
+#########################################################################
+#
+# StreamHandler, ConsoleHandler, FileHandler, SocketHandler, MemeoryHandler
+#
+#########################################################################
+
+handlers = java.util.logging.ConsoleHandler
+
+#########################################################################
+#
+# OFF > SEVERE > WARNING > INFO > CONFIG > FINE > FINER > FINEST > ALL
+# -Debug   : INFO
+# -Release : WARNING
+# -Service : SEVERE
+#
+#########################################################################
+
+.level = INFO
+
+java.util.logging.FileHandler.pattern = ../log/Server.log
+java.util.logging.FileHandler.limit = 50000
+java.util.logging.FileHandler.count = 1
+java.util.logging.FileHandler.formatter = java.util.logging.XMLFormatter
+
+java.util.logging.ConsoleHandler.level = INFO
+java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+
+com.xyz.foo.level = SEVERE

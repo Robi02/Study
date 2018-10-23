@@ -1,0 +1,642 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=EUC-KR">
+	
+<!--
+* 화일명 : msg_magic.html
+* created by rulerpark
+-->
+	<title>전문구조체분석(euc-kr)</title>
+	<style type="text/css">
+		<!--
+			table {
+				font-size:13; word-break:break-all
+			}
+		-->
+	</style>
+	<script language="javascript">
+		function mtrim(str)
+		{
+			if (str == null) return "";
+			var mstr = "";
+			for(var i=0; i<str.length; i++)
+			{
+				c = str.charAt(i);
+				if (c != ' ' && c != '\n' && c != '\r') mstr += c;
+			}
+			return mstr;
+		}
+		function calBytes(str)
+		{
+		  var tcount = 0;
+		
+		  var tmpStr = new String(str);
+		  var temp = tmpStr.length;
+		
+		  var onechar;
+		  for (var k=0; k<temp; k++ )
+		  {
+		    onechar = tmpStr.charAt(k);
+		    if (escape(onechar).length > 4)
+		    {
+		      tcount += 2;
+		    }
+		    else
+		    {
+		      tcount += 1;
+		    }
+		  }
+		
+		  return tcount;
+		}
+
+		function replaceStr(src_str, o_token, n_token) 
+		{
+			if (src_str == null || o_token == n_token) return src_str;
+			if (src_str.length == 0) return src_str;
+			
+			var str_tmp = src_str;
+			var index = str_tmp.indexOf(o_token);
+			
+			while (index >= 0) 
+			{
+				str_tmp = str_tmp.substring(0, index) + n_token + str_tmp.substring(index + o_token.length);
+				index = str_tmp.indexOf(o_token, index);
+			}
+			
+			return str_tmp;
+		}
+		
+		function split_msg_rw()
+		{
+			var frm = document.mfrm;
+						
+			var m_msg_txt = frm.msg_textarea.value;
+			var m_msg_txt_len = m_msg_txt.length;
+			var m_msg_txt_blen = calBytes(m_msg_txt);
+			
+			var m_stru_txt = frm.str_chk_textarea.value;
+			var m_stru_arr = m_stru_txt.split("\n");
+
+			var s_name = "";
+			var s_size = "";
+			
+			var table_text = "";
+				table_text += "<table width='100%' border='1' cellspacing='0' cellpadding=2>\n";
+				table_text += "	<tr>\n";
+				table_text += "		<td width=30 align='center' bgcolor='#f1f1f1'>No</td>\n";
+				table_text += "		<td width=100 align='center' bgcolor='#f1f1f1'>항목</td>\n";
+				table_text += "		<td width=30 align='center' bgcolor='#f1f1f1'>타입</td>\n";
+				table_text += "		<td width=30 align='center' bgcolor='#f1f1f1'>길이</td>\n";
+				table_text += "		<td width=30 align='center' bgcolor='#f1f1f1'>누계</td>\n";
+				table_text += "		<td width='*' align='center' bgcolor='#f1f1f1'>데이타</td>\n";
+				table_text += "	</tr>\n";
+				
+			var s_counter = 0, m_idx = 0, m_tsum = 0;
+			var idx1=0, idx2=0;
+			
+			for(var i=0; i<m_stru_arr.length; i++)
+			{
+				if (-1 == (idx1 = m_stru_arr[i].indexOf("|"))) continue;
+				idx2 = m_stru_arr[i].indexOf("|",idx1+1);
+				
+				s_name = m_stru_arr[i].substring(0, idx1);
+				
+				if (-1 == idx2)
+				{
+					s_size = m_stru_arr[i].substring(idx1+1);
+				}else
+				{
+					s_size = m_stru_arr[i].substring(idx1+1, idx2);
+				}
+				
+				var r_name = mtrim(s_name);
+				var r_size = parseInt(mtrim(s_size), 10);
+				
+				if (r_size == NaN)
+				{
+					alert((s_counter+1) + "번째 숫자아님("+s_size+")");
+					continue;
+				}
+				s_counter++;
+				
+				var c;
+				var n_len = 0;
+				var r_msg = "";
+				var m_ssum = 0;
+				for(var j=0; m_idx<m_msg_txt_len && j < r_size;)
+				{
+					c = m_msg_txt.charAt(m_idx);
+					      
+					if (escape(c).length > 4)
+					{
+						j += 2;
+					}else
+					{
+						if (c >= '0' && c <= '9') n_len++;
+						j += 1;
+					}
+					
+					if (j == r_size)
+					{
+						;
+					}else
+					if (j > r_size)
+					{
+						m_msg_txt = m_msg_txt.substring(0,m_idx) + "==" + m_msg_txt.substring(m_idx+1);
+						j = r_size;
+					}
+					
+					m_ssum = j;
+					
+					r_msg += m_msg_txt.charAt(m_idx);
+            
+					m_idx++;
+				}
+				
+				m_tsum += m_ssum;
+            
+				table_text += "<tr>\n";
+				table_text += "	<td>"+s_counter+"</td>\n";
+				table_text += "	<td>"+r_name+"</td>\n";
+				
+				var m_type = "X";
+				if (n_len == r_size) m_type = "9";
+	
+				if (-1 != r_name.indexOf("*SEQ_NO"))
+				{
+					r_msg = getSeq(r_size);
+				}else
+				if (-1 != r_name.indexOf("*CURR_"))
+				{
+					r_msg = getCurrDate(r_name);
+				}
+				
+				if (m_type == "X")
+					table_text += "	<td>"+"<input type='checkbox' name='msg_type' value='" + m_type + "' onclick='this.value = ((this.value==\"9\") ? \"X\" : \"9\");msg_type_msg[" + (s_counter-1) + "].innerText=this.value;'><span id='msg_type_msg'>" + m_type + "</span>" +"</td>\n";
+				else
+					table_text += "	<td>"+"<input type='checkbox' name='msg_type' value='" + m_type + "' checked onclick='this.value = ((this.value==\"9\") ? \"X\" : \"9\");msg_type_msg[" + (s_counter-1) + "].innerText=this.value;'><span id='msg_type_msg'>" + m_type + "</span>" +"</td>\n";
+
+				if (m_ssum == r_size)
+					table_text += "	<td>"+"<input type='text' name='msg_size' value='" + r_size + "' size=2 style='border-style: none;'>" +"</td>\n";
+				else
+					table_text += "	<td>"+"<font color=red><b>"+m_ssum + "/" + "<input type='text' name='msg_size' value='" + r_size + "' size=2 style='border-style: none;'>"+"</b></font></td>\n";
+
+				table_text += "	<td>"+m_tsum + "</td>\n";
+				table_text += "	<td>"+"<input type='text' name='msg_text' size=50 value='" + r_msg + "'>"+"</td>\n";
+				table_text += "</tr>\n";            
+			}
+			
+			if (m_tsum < m_msg_txt_blen)
+			{
+				table_text += "<tr>\n";
+				table_text += "	<td>"+(s_counter+1)+"</td>\n";
+				table_text += "	<td><font color=red><b>나머지</b></font></td>\n";
+				table_text += "	<td>"+"<input type='checkbox' name='msg_type' value='Y'><span id='msg_type_msg'>Y</span>" +"</td>\n";
+				table_text += "	<td>"+"<input type='text' name='msg_size' value='" + (m_msg_txt_blen-m_tsum) + "' size=2 style='border-style: none;'>" +"</td>\n";
+				table_text += "	<td>"+m_msg_txt_blen + "</td>\n";
+				table_text += "	<td>"+"<input type='text' name='msg_text' size=50 value='" + m_msg_txt.substring(m_idx) + "'>"+"</td>\n";
+				table_text += "</tr>\n";            
+			}
+			
+			table_text += "</table>";
+			
+			msg_td.innerHTML = table_text;
+
+			frm.str_chk_textarea.style.width="100%;";
+			frm.str_chk_textarea.style.height="100%;";
+
+		}
+
+		function split_msg_ro()
+		{
+			var frm = document.mfrm;
+						
+			var m_chk_txt = frm.msg_textarea.value;
+			var m_chk_txt_len = m_chk_txt.length;
+			var m_chk_txt_blen = calBytes(m_chk_txt);
+			
+			var m_stru_txt = frm.str_chk_textarea.value;
+			var m_stru_arr = m_stru_txt.split("\n");
+
+			var s_name = "";
+			var s_size = "";
+			
+			var table_text = "";
+				table_text += "<table width='100%' border='1' cellspacing='0' cellpadding=2>\n";
+				table_text += "	<tr>\n";
+				table_text += "		<td width=30 align='center' bgcolor='#f1f1f1'>No</td>\n";
+				table_text += "		<td width=100 align='center' bgcolor='#f1f1f1'>항목</td>\n";
+				table_text += "		<td width=30 align='center' bgcolor='#f1f1f1'>길이</td>\n";
+				table_text += "		<td width=30 align='center' bgcolor='#f1f1f1'>누계</td>\n";
+				table_text += "		<td width='*' align='center' bgcolor='#f1f1f1'>데이타</td>\n";
+				table_text += "	</tr>\n";
+				
+			var s_counter = 0, m_idx = 0, m_tsum = 0;
+			var idx1=0, idx2=0;
+			
+			for(var i=0; i<m_stru_arr.length; i++)
+			{
+				if (-1 == (idx1 = m_stru_arr[i].indexOf("|"))) continue;
+				idx2 = m_stru_arr[i].indexOf("|",idx1+1);
+				
+				s_name = m_stru_arr[i].substring(0, idx1);
+				
+				if (-1 == idx2)
+				{
+					s_size = m_stru_arr[i].substring(idx1+1);
+				}else
+				{
+					s_size = m_stru_arr[i].substring(idx1+1, idx2);
+				}
+				
+				var r_name = mtrim(s_name);
+				var r_size = parseInt(mtrim(s_size), 10);
+				
+				if (r_size == NaN)
+				{
+					//alert((s_counter+1) + "번째 숫자아님("+s_size+")");
+					continue;
+				}
+				s_counter++;
+				
+				var c;
+				var n_len = 0;
+				var r_msg = "";
+				var m_ssum = 0;
+				for(var j=0; m_idx<m_chk_txt_len && j < r_size;)
+				{
+					c = m_chk_txt.charAt(m_idx);
+					      
+					if (escape(c).length > 4)
+					{
+						j += 2;
+					}else
+					{
+						if (c >= '0' && c <= '9') n_len++;
+						j += 1;
+					}
+					
+					if (j == r_size)
+					{
+						;
+					}else
+					if (j > r_size)
+					{
+						m_chk_txt = m_chk_txt.substring(0,m_idx) + "==" + m_chk_txt.substring(m_idx+1);
+						j = r_size;
+					}
+					
+					m_ssum = j;
+					
+					r_msg += m_chk_txt.charAt(m_idx);
+            
+					m_idx++;
+				}
+				
+				m_tsum += m_ssum;
+            
+				table_text += "<tr>\n";
+				table_text += "	<td>"+s_counter+"</td>\n";
+				table_text += "	<td>"+r_name+"</td>\n";
+				table_text += "	<td>"+r_size+"</td>\n";
+				table_text += "	<td>"+m_tsum + "</td>\n";
+				table_text += "	<td>"+replaceStr(r_msg, " ", "&nbsp;") + "</td>\n";//replaceStr(r_msg, " ", "&nbsp;") 
+				table_text += "</tr>\n";            
+			}
+			
+			if (m_tsum < m_chk_txt_blen)
+			{
+				table_text += "<tr>\n";
+				table_text += "	<td>"+(s_counter+1)+"</td>\n";
+				table_text += "	<td><font color=red><b>나머지</b></font></td>\n";
+				table_text += "	<td>"+ (m_chk_txt_blen-m_tsum) +"</td>\n";
+				table_text += "	<td>"+m_chk_txt_blen + "</td>\n";
+				table_text += "	<td>"+ replaceStr(m_chk_txt.substring(m_idx), " ", "&nbsp;") +"</td>\n";//replaceStr(m_chk_txt.substring(m_idx), " ", "&nbsp;") 
+				table_text += "</tr>\n";            
+			}
+			
+			table_text += "</table>";
+			
+			msg_td.innerHTML = table_text;
+			frm.str_chk_textarea.style.width="100%;";
+			frm.str_chk_textarea.style.height="100%;";
+			
+			return true;
+		}		
+	</script>
+	<script>
+		function getRealMsg(obj_idx)
+		{
+			var frm = document.forms[0];
+			
+			if (frm.msg_type[obj_idx].value == "Y") return frm.msg_text[obj_idx].value;
+			
+			if (isNaN(frm.msg_size[obj_idx].value))
+			{
+				alert("msg_size[" + obj_idx + "] 에러!!");
+				frm.msg_text[obj_idx].focus();
+				return false;
+			}
+			
+			var size_counter = 0;
+			var msg_buf = "";
+			
+			var chk_char;
+			var chk_size = parseInt(frm.msg_size[obj_idx].value);			
+			var chk_msg = frm.msg_text[obj_idx].value == null ? "" : frm.msg_text[obj_idx].value;
+			
+			for(var i=0; i<chk_msg.length; i++)
+			{
+				chk_char = chk_msg.charAt(i);
+				
+				if ('*' == chk_char) break;
+				
+				if(chk_msg.charCodeAt(i) > 0x00ff) ++size_counter;
+				
+				++size_counter;
+				
+				if(size_counter > chk_size)
+				{
+					alert("msg_size[" + obj_idx + "] 초과 ==> 나머지 메세지 버림!!");
+					break;
+				}
+				
+				msg_buf += chk_char;
+			}
+			
+			var is_num = (frm.msg_type[obj_idx].value == "9");
+			var blank_char = (is_num) ? '0' : ' ';
+			var blank_msg  = "";
+			
+			for(var i=size_counter; i<chk_size; i++)
+			{
+				blank_msg += blank_char;
+			}
+			
+			msg_buf = (is_num) ? blank_msg + msg_buf : msg_buf + blank_msg;
+			
+			return msg_buf;
+		}
+
+		function check_size(obj_idx)
+		{
+			var frm = document.forms[0];
+			
+			if (isNaN(frm.msg_size[obj_idx].value))
+			{
+				alert("msg_size[" + obj_idx + "] 에러!!");
+				frm.msg_text[obj_idx].focus();
+				return false;
+			}
+			
+			var size_counter = 0;
+			
+			var chk_char;
+			var chk_size = parseInt(frm.msg_size[obj_idx].value);			
+			var chk_msg = frm.msg_text[obj_idx].value == null ? "" : frm.msg_text[obj_idx].value;
+			
+			for(var i=0; i<chk_msg.length; i++)
+			{
+				chk_char = chk_msg.charAt(i);
+				
+				if ('*' == chk_char) break;
+				
+				if(chk_msg.charCodeAt(i) > 0x00ff) ++size_counter;
+				++size_counter;
+				
+				if(size_counter > chk_size)
+				{
+					alert("msg_size[" + obj_idx + "] 초과 ==> 나머지 메세지 버림!!");
+					frm.msg_text[obj_idx].value = chk_msg.substring(0, i);
+					frm.msg_text[obj_idx].focus();
+					return false;
+				}
+			}
+			
+			return true;
+		}
+
+		function save_msg()
+		{
+			var frm = document.forms[0];
+			
+			var tmp_buf = "";
+			var msg_buf = "";
+			for(var i=0; i<frm.msg_text.length; i++)
+			{
+				tmp_buf = getRealMsg(i);
+				if (tmp_buf.length == 0) break;
+				
+				msg_buf += tmp_buf;
+			}
+			
+			var msg_size = 0;
+			for(var i=0; i<msg_buf.length ; i++) msg_size += (msg_buf.charCodeAt(i) > 0x00ff) ? 2 : 1;
+			
+			frm.msg_textarea.value = msg_buf;
+			
+			//hide_msg();
+		}
+
+		function getCurTime14()
+		{
+			var now = new Date();
+			
+			var year = now.getFullYear();
+			var mon  = now.getMonth() + 1;
+			var day  = now.getDate();
+			var hour = now.getHours();
+			var min  = now.getMinutes();
+			var sec  = now.getSeconds();
+			
+			var time_14 = "";
+			
+			time_14 += year;
+			time_14 += (mon  > 9) ? mon  : '0' + mon ;
+			time_14 += (day  > 9) ? day  : '0' + day ;
+			time_14 += (hour > 9) ? hour : '0' + hour ;
+			time_14 += (min  > 9) ? min  : '0' + min ;
+			time_14 += (sec  > 9) ? sec  : '0' + sec ;
+			
+			return time_14;
+		}
+
+		var seq_idx = 0;
+		function getSeq(r_size)
+		{
+			seq_idx++;
+			
+			var seq_msg = "000000000000000000000000000000000000000000" + seq_idx;
+			return seq_msg.substring(seq_msg.length-r_size,seq_msg.length);
+		}
+				
+		function getCurrDate(r_name)
+		{
+			var curr_time_14 = getCurTime14();
+
+			if (-1 != r_name.indexOf("*CURR_YYYMMDDHHMMSS"))
+			{
+				return curr_time_14;
+			}else
+			if (-1 != r_name.indexOf("*CURR_YYMMDDHHMMSS"))
+			{
+				return curr_time_14.substring(2,14);
+			}else
+			if (-1 != r_name.indexOf("*CURR_YYYYMMDD"))
+			{
+				return curr_time_14.substring(0,8);
+			}else
+			if (-1 != r_name.indexOf("*CURR_YYMMDD"))
+			{
+				return curr_time_14.substring(2,8);
+			}else
+			if (-1 != r_name.indexOf("*CURR_HHMMSS"))
+			{
+				return curr_time_14.substring(8,14);
+			}
+			return "";
+		}
+	</script>
+</head>
+<body>
+<form name="mfrm" action="" method="post" target="_blank">
+	<table id="chk_tbl" width="800" border="1" cellspacing="0" cellpadding="2" bordercolordark="#ffffff" bordercolorlight="#aaaaaa">
+		<tbody><tr>
+			<td align="center" bgcolor="#f1f1f1" width="*" colspan="2">전문구조체(euc-kr)(항목명|길이)분석 - 예약어(SEQ_NO, CUR_YYMMDDHHMMSS 등)</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<textarea name="str_chk_textarea" style="width:100%" rows="10"></textarea>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2">
+				<textarea name="msg_textarea" style="width:100%" rows="3"></textarea>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" align="center" bgcolor="#f1f1f1">
+				<select name="msg_sel" onchange="javascript:change_msg(this.value);">
+					<option value="-1" selected="">==직접입력(항목명|길이)==</option>
+					<option value="0">송금(실시간)       </option>
+					<option value="1">송금(배치/표제부)  </option>
+					<option value="2">송금(배치/데이터부)</option>
+					<option value="3">송금(배치/종료부)  </option>
+				</select>&nbsp;&nbsp;&nbsp;&nbsp;
+				<button type="button" onclick="javascript:split_msg_ro();">분석(RO)</button>&nbsp;&nbsp;
+				<button type="button" onclick="javascript:split_msg_rw();">분석(RW)</button>&nbsp;&nbsp;
+				<button type="button" onclick="javascript:save_msg();">생성(MK)</button>&nbsp;&nbsp;
+			</td>
+		</tr>
+		<tr>
+			<td colspan=2 id="msg_td" width='50%'></td>
+		</tr>
+	</tbody></table>
+</form>
+
+<script>
+	function change_msg(msg_idx)
+	{
+		if (-1 == msg_idx) return;
+		
+		var frm = document.forms[0];
+		
+		frm.str_chk_textarea.value		= arr_chk_struct[msg_idx];
+		frm.msg_textarea.value			= arr_msg		[msg_idx];
+		
+		return true
+	}
+
+	var arr_chk_struct	= new Array();
+	var arr_msg			= new Array();
+	
+	arr_msg			[0] = "         KSTEST01  0100100100000420150107080000                                     002             1234567891011                0000000001000                9876543210111           165104업체명                                             홍길동              020                                      ";
+
+	arr_chk_struct[0] = "";
+	arr_chk_struct[0] += "식별코드          |9 \n";
+	arr_chk_struct[0] += "업체코드          |8 \n";
+	arr_chk_struct[0] += "은행코드2         |2 \n";
+	arr_chk_struct[0] += "메시지코드        |4 \n";
+	arr_chk_struct[0] += "업무구분코드      |3 \n";
+	arr_chk_struct[0] += "송신횟수          |1 \n";
+	arr_chk_struct[0] += "전문번호          |6 \n";
+	arr_chk_struct[0] += "전송일자          |8 \n";
+	arr_chk_struct[0] += "전송시간          |6 \n";
+	arr_chk_struct[0] += "응답코드          |4 \n";
+	arr_chk_struct[0] += "은행 응답코드     |4 \n";
+	arr_chk_struct[0] += "조회일자          |8 \n";
+	arr_chk_struct[0] += "조회번호          |6 \n";
+	arr_chk_struct[0] += "은행전문번호      |15\n";
+	arr_chk_struct[0] += "은행코드3         |3 \n";
+	arr_chk_struct[0] += "예비              |13\n";
+	arr_chk_struct[0] += "출금 계좌번호     |15\n";
+	arr_chk_struct[0] += "통장 비밀번호     |8 \n";
+	arr_chk_struct[0] += "복기부호          |6 \n";
+	arr_chk_struct[0] += "출금 금액         |13\n";
+	arr_chk_struct[0] += "출금 후 잔액부호  |1 \n";
+	arr_chk_struct[0] += "출금 후 잔액      |13\n";
+	arr_chk_struct[0] += "입금 은행코드2    |2 \n";
+	arr_chk_struct[0] += "입금 계좌번호     |15\n";
+	arr_chk_struct[0] += "수수료            |9 \n";
+	arr_chk_struct[0] += "이체 시각         |6 \n";
+	arr_chk_struct[0] += "입금 계좌 적요    |20\n";
+	arr_chk_struct[0] += "CMS코드           |16\n";
+	arr_chk_struct[0] += "신원확인번호      |13\n";
+	arr_chk_struct[0] += "자동이체 구분     |2 \n";
+	arr_chk_struct[0] += "출금 계좌 적요    |20\n";
+	arr_chk_struct[0] += "입금 은행코드3    |3 \n";
+	arr_chk_struct[0] += "급여 구분         |1 \n";
+	arr_chk_struct[0] += "예비              |37\n";
+
+	
+	arr_msg			[1] = "S10081KSANP0011804041804042579100509440451000000114380                       1K ";
+
+	arr_chk_struct[1] = "";
+	arr_chk_struct[1] += "식별코드         |1 \n";
+	arr_chk_struct[1] += "업무구분         |2 \n";
+	arr_chk_struct[1] += "은행코드         |3 \n";
+	arr_chk_struct[1] += "업체코드         |8 \n";
+	arr_chk_struct[1] += "이체의뢰일자     |6 \n";
+	arr_chk_struct[1] += "이체처리일자     |6 \n";
+	arr_chk_struct[1] += "모계좌번호       |14\n";
+	arr_chk_struct[1] += "이체종류         |2 \n";
+	arr_chk_struct[1] += "회사번호         |6 \n";
+	arr_chk_struct[1] += "처리결과통보구분 |1 \n";
+	arr_chk_struct[1] += "전송차수         |1 \n";
+	arr_chk_struct[1] += "비밀번호         |8 \n";
+	arr_chk_struct[1] += "공란             |19\n";
+	arr_chk_struct[1] += "Format           |1 \n";
+	arr_chk_struct[1] += "VAN              |2 \n";
+
+
+	arr_msg			[2] = "D000007004999991042221220000066741000000667410             Y0000지샯범물최호    ";
+
+	arr_chk_struct[2] = "";
+	arr_chk_struct[2] += "식별코드         |1 \n";
+	arr_chk_struct[2] += "데이터 일련번호  |6 \n";
+	arr_chk_struct[2] += "은행코드         |3 \n";
+	arr_chk_struct[2] += "계좌번호         |14\n";
+	arr_chk_struct[2] += "이체요청금액     |11\n";
+	arr_chk_struct[2] += "실제이체금액     |11\n";
+	arr_chk_struct[2] += "주민/사업자번호  |13\n";
+	arr_chk_struct[2] += "처리결과         |1 \n";
+	arr_chk_struct[2] += "불능코드         |4 \n";
+	arr_chk_struct[2] += "적요             |12\n";
+	arr_chk_struct[2] += "공란             |4 \n";
+
+
+	arr_msg			[3] = "E0000213000010729085800002130000107290858000000000000000000003706               ";
+
+	arr_chk_struct[3] = "";
+	arr_chk_struct[3] += "식별코드         |1 \n";
+	arr_chk_struct[3] += "총의뢰건수       |7 \n";
+	arr_chk_struct[3] += "총의뢰금액       |13\n";
+	arr_chk_struct[3] += "정상처리건수     |7 \n";
+	arr_chk_struct[3] += "정상처리금액     |13\n";
+	arr_chk_struct[3] += "불능처리건수     |7 \n";
+	arr_chk_struct[3] += "불능처리금액     |13\n";
+	arr_chk_struct[3] += "복기부호         |8 \n";
+	arr_chk_struct[3] += "공란             |11\n";
+	
+</script>
+
+</body></html>

@@ -1,0 +1,19 @@
+{
+    "C_Cpp.errorSquiggles": "Disabled",
+    "files.associations": {
+        "ncode_hexa.h": "c",
+        "ncrypt_seed.h": "c",
+        "kisa_seed.h": "c",
+        "common_ncrypt.h": "c",
+        "ncrypt_aes.h": "c",
+        "ncrypt_common.h": "c",
+        "ncrypt_aria.h": "c",
+        "common_typedef.h": "c",
+        "ncrypt_blowfish.h": "c",
+        "ncrypt_des.h": "c",
+        "ncrypt_hight.h": "c",
+        "bytestream.h": "c",
+        "rbmath.h": "c",
+        "stdarg.h": "c"
+    }
+}

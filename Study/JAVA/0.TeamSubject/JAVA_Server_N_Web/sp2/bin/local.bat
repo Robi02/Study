@@ -1,0 +1,9 @@
+rem ====================================
+set BIN_DIR=%cd%
+set CONF_DIR=%BIN_DIR%/../conf
+set SRC_DIR=%BIN_DIR%/../src
+rem ====================================
+set JAR_NAME=%BIN_DIR%/Server.jar
+set JAR_ENTRY=%com.ksnet.ServerMain
+set LIB_NAME=%BIN_DIR%/KsCommonLib.jar
+rem ====================================

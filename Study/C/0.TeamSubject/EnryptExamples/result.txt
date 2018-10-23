@@ -1,0 +1,229 @@
+=============================================================================================
+*
+[ SEED - ECB - NULL ]
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>seed -e 1 "12345678abcdefgh" "무궁화 꽃이 피었습니다." 
+1.STRING:
+[pcNCwNjjnACa+t/bcPLCJ3/bAD47f/gi+uDPYaAmxEM=]
+2.HEXA:
+70 63 4E 43 77 4E 6A 6A 6E 41 43 61 2B 74 2F 62 63 50 4C 43 4A 33 2F 62 41 44 34 37 66 2F 67 69 2B 75 44 50 59 61 41 6D 78 45 4D 3D 
+3.RESULT!!
+enc(-e) padding(1) key(12345678abcdefgh) s(23:[무궁화 꽃이 피었습니다.])->t(44:[pcNCwNjjnACa+t/bcPLCJ3/bAD47f/gi+uDPYaAmxEM=])
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>seed -d 1 "12345678abcdefgh" "pcNCwNjjnACa+t/bcPLCJ3/bAD47f/gi+uDPYaAmxEM=" 
+1.STRING:
+[무궁화 꽃이 피었습니다._________]
+2.HEXA:
+B9 AB B1 C3 C8 AD 20 B2 C9 C0 CC 20 C7 C7 BE FA BD C0 B4 CF B4 D9 2E 00 00 00 00 00 00 00 00 00 
+3.RESULT!!
+enc(-d) padding(1) key(12345678abcdefgh) s(44:[pcNCwNjjnACa+t/bcPLCJ3/bAD47f/gi+uDPYaAmxEM=])->t(32:[무궁화 꽃이 피었습니다.])
+*
+[ SEED - CBC - PKCS ]
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>seed -e 3 "12345678abcdefgh" "무궁화 꽃이 피었습니다." 
+1.STRING:
+[pcNCwNjjnACa+t/bcPLCJ7HqfnjWeyw86sSPxhXJxU4=]
+2.HEXA:
+70 63 4E 43 77 4E 6A 6A 6E 41 43 61 2B 74 2F 62 63 50 4C 43 4A 37 48 71 66 6E 6A 57 65 79 77 38 36 73 53 50 78 68 58 4A 78 55 34 3D 
+3.RESULT!!
+enc(-e) padding(3) key(12345678abcdefgh) s(23:[무궁화 꽃이 피었습니다.])->t(44:[pcNCwNjjnACa+t/bcPLCJ7HqfnjWeyw86sSPxhXJxU4=])
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>seed -d 3 "12345678abcdefgh" "pcNCwNjjnACa+t/bcPLCJ7HqfnjWeyw86sSPxhXJxU4=" 
+1.STRING:
+[무궁화 꽃이 피었습니다._________]
+2.HEXA:
+B9 AB B1 C3 C8 AD 20 B2 C9 C0 CC 20 C7 C7 BE FA BD C0 B4 CF B4 D9 2E 09 09 09 09 09 09 09 09 09 
+3.RESULT!!
+enc(-d) padding(3) key(12345678abcdefgh) s(44:[pcNCwNjjnACa+t/bcPLCJ7HqfnjWeyw86sSPxhXJxU4=])->t(32:[무궁화 꽃이 피었습니다.									])
+*　
+=============================================================================================
+*　
+[ HIGHT - ECB - NULL ]
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>hight -e 1 "12345678abcdefgh" "무궁화 꽃이 피었습니다." 
+1.STRING:
+[lhqmaYCo2b57An+QyNomYlX3FxtXQXSE]
+2.HEXA:
+6C 68 71 6D 61 59 43 6F 32 62 35 37 41 6E 2B 51 79 4E 6F 6D 59 6C 58 33 46 78 74 58 51 58 53 45 
+3.RESULT!!
+enc(-e) padding(1) key(12345678abcdefgh) s(23:[무궁화 꽃이 피었습니다.])->t(32:[lhqmaYCo2b57An+QyNomYlX3FxtXQXSE])
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>hight -d 1 "12345678abcdefgh" "lhqmaYCo2b57An+QyNomYlX3FxtXQXSE" 
+1.STRING:
+[무궁화 꽃이 피었습니다._]
+2.HEXA:
+B9 AB B1 C3 C8 AD 20 B2 C9 C0 CC 20 C7 C7 BE FA BD C0 B4 CF B4 D9 2E 00 
+3.RESULT!!
+enc(-d) padding(1) key(12345678abcdefgh) s(32:[lhqmaYCo2b57An+QyNomYlX3FxtXQXSE])->t(24:[무궁화 꽃이 피었습니다.])
+*
+[ HIGHT - CBC - PKCS ]
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>hight -e 3 "12345678abcdefgh" "무궁화 꽃이 피었습니다." 
+1.STRING:
+[lhqmaYCo2b5O8O4vYQes+2BfdlvgXOkD]
+2.HEXA:
+6C 68 71 6D 61 59 43 6F 32 62 35 4F 38 4F 34 76 59 51 65 73 2B 32 42 66 64 6C 76 67 58 4F 6B 44 
+3.RESULT!!
+enc(-e) padding(3) key(12345678abcdefgh) s(23:[무궁화 꽃이 피었습니다.])->t(32:[lhqmaYCo2b5O8O4vYQes+2BfdlvgXOkD])
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>hight -d 3 "12345678abcdefgh" "lhqmaYCo2b5O8O4vYQes+2BfdlvgXOkD" 
+1.STRING:
+[무궁화 꽃이 피었습니다._]
+2.HEXA:
+B9 AB B1 C3 C8 AD 20 B2 C9 C0 CC 20 C7 C7 BE FA BD C0 B4 CF B4 D9 2E 01 
+3.RESULT!!
+enc(-d) padding(3) key(12345678abcdefgh) s(32:[lhqmaYCo2b5O8O4vYQes+2BfdlvgXOkD])->t(24:[무궁화 꽃이 피었습니다.])
+*　
+=============================================================================================
+*　
+[ ARIA12 - ECB - NULL ]
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>aria -e 1 "12345678abcdefgh" "무궁화 꽃이 피었습니다." 
+1.STRING:
+[wt22PEm0G5xfs9+qv7E52VMQG3pEqNQlbh4m9nx3VgU=]
+2.HEXA:
+77 74 32 32 50 45 6D 30 47 35 78 66 73 39 2B 71 76 37 45 35 32 56 4D 51 47 33 70 45 71 4E 51 6C 62 68 34 6D 39 6E 78 33 56 67 55 3D 
+3.RESULT!!
+enc(-e) padding(1) key(12345678abcdefgh) s(23:[무궁화 꽃이 피었습니다.])->t(44:[wt22PEm0G5xfs9+qv7E52VMQG3pEqNQlbh4m9nx3VgU=])
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>aria -d 1 "12345678abcdefgh" "wt22PEm0G5xfs9+qv7E52VMQG3pEqNQlbh4m9nx3VgU=" 
+1.STRING:
+[무궁화 꽃이 피었습니다._________]
+2.HEXA:
+B9 AB B1 C3 C8 AD 20 B2 C9 C0 CC 20 C7 C7 BE FA BD C0 B4 CF B4 D9 2E 00 00 00 00 00 00 00 00 00 
+3.RESULT!!
+enc(-d) padding(1) key(12345678abcdefgh) s(44:[wt22PEm0G5xfs9+qv7E52VMQG3pEqNQlbh4m9nx3VgU=])->t(32:[무궁화 꽃이 피었습니다.])
+*
+[ ARIA14 - CBC - PKCS ]
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>aria -e 3 "12345678abcdefghABCDEFGH" "무궁화 꽃이 피었습니다." 
+1.STRING:
+[bDSeXOiJtKbd+CjlpRUqXVHMH2Sg+JeO8Y6i2X79yOU=]
+2.HEXA:
+62 44 53 65 58 4F 69 4A 74 4B 62 64 2B 43 6A 6C 70 52 55 71 58 56 48 4D 48 32 53 67 2B 4A 65 4F 38 59 36 69 32 58 37 39 79 4F 55 3D 
+3.RESULT!!
+enc(-e) padding(3) key(12345678abcdefghABCDEFGH) s(23:[무궁화 꽃이 피었습니다.])->t(44:[bDSeXOiJtKbd+CjlpRUqXVHMH2Sg+JeO8Y6i2X79yOU=])
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>aria -d 3 "12345678abcdefghABCDEFGH" "bDSeXOiJtKbd+CjlpRUqXVHMH2Sg+JeO8Y6i2X79yOU=" 
+1.STRING:
+[무궁화 꽃이 피었습니다._________]
+2.HEXA:
+B9 AB B1 C3 C8 AD 20 B2 C9 C0 CC 20 C7 C7 BE FA BD C0 B4 CF B4 D9 2E 09 09 09 09 09 09 09 09 09 
+3.RESULT!!
+enc(-d) padding(3) key(12345678abcdefghABCDEFGH) s(44:[bDSeXOiJtKbd+CjlpRUqXVHMH2Sg+JeO8Y6i2X79yOU=])->t(32:[무궁화 꽃이 피었습니다.									])
+*　
+=============================================================================================
+*　
+[ DES - ECB - NULL ]
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>des -e 1 "12345678" "무궁화 꽃이 피었습니다." 
+1.STRING:
+[ED/TeiEDoIUxe6SZB4eMoMJmdlcpWAH+]
+2.HEXA:
+45 44 2F 54 65 69 45 44 6F 49 55 78 65 36 53 5A 42 34 65 4D 6F 4D 4A 6D 64 6C 63 70 57 41 48 2B 
+3.RESULT!!
+enc(-e) padding(1) key(12345678) s(23:[무궁화 꽃이 피었습니다.])->t(32:[ED/TeiEDoIUxe6SZB4eMoMJmdlcpWAH+])
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>des -d 1 "12345678" "ED/TeiEDoIUxe6SZB4eMoMJmdlcpWAH+" 
+1.STRING:
+[무궁화 꽃이 피었습니다._]
+2.HEXA:
+B9 AB B1 C3 C8 AD 20 B2 C9 C0 CC 20 C7 C7 BE FA BD C0 B4 CF B4 D9 2E 00 
+3.RESULT!!
+enc(-d) padding(1) key(12345678) s(32:[ED/TeiEDoIUxe6SZB4eMoMJmdlcpWAH+])->t(24:[무궁화 꽃이 피었습니다.])
+*
+[ DES3 - CBC - PKCS ]
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>des -e 3 "12345678abcdefghABCDEFGH" "무궁화 꽃이 피었습니다." 
+1.STRING:
+[TQCxEE3nszhB1NMSqryQai8+srn6xRPt]
+2.HEXA:
+54 51 43 78 45 45 33 6E 73 7A 68 42 31 4E 4D 53 71 72 79 51 61 69 38 2B 73 72 6E 36 78 52 50 74 
+3.RESULT!!
+enc(-e) padding(3) key(12345678abcdefghABCDEFGH) s(23:[무궁화 꽃이 피었습니다.])->t(32:[TQCxEE3nszhB1NMSqryQai8+srn6xRPt])
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>des -d 3 "12345678abcdefghABCDEFGH" "TQCxEE3nszhB1NMSqryQai8+srn6xRPt" 
+1.STRING:
+[무궁화 꽃이 피었습니다._]
+2.HEXA:
+B9 AB B1 C3 C8 AD 20 B2 C9 C0 CC 20 C7 C7 BE FA BD C0 B4 CF B4 D9 2E 01 
+3.RESULT!!
+enc(-d) padding(3) key(12345678abcdefghABCDEFGH) s(32:[TQCxEE3nszhB1NMSqryQai8+srn6xRPt])->t(24:[무궁화 꽃이 피었습니다.])
+*　
+=============================================================================================
+*　
+[ AES128 - ECB - NULL ]
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>aes -e 1 "12345678abcdefgh" "무궁화 꽃이 피었습니다." 
+1.STRING:
+[XOaJ4f6clmlreFvkx6H+9y1W8bk42Q1zhIUtdFDtcGk=]
+2.HEXA:
+58 4F 61 4A 34 66 36 63 6C 6D 6C 72 65 46 76 6B 78 36 48 2B 39 79 31 57 38 62 6B 34 32 51 31 7A 68 49 55 74 64 46 44 74 63 47 6B 3D 
+3.RESULT!!
+enc(-e) padding(1) key(12345678abcdefgh) s(23:[무궁화 꽃이 피었습니다.])->t(44:[XOaJ4f6clmlreFvkx6H+9y1W8bk42Q1zhIUtdFDtcGk=])
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>aes -d 1 "12345678abcdefgh" "XOaJ4f6clmlreFvkx6H+9y1W8bk42Q1zhIUtdFDtcGk=" 
+1.STRING:
+[무궁화 꽃이 피었습니다._________]
+2.HEXA:
+B9 AB B1 C3 C8 AD 20 B2 C9 C0 CC 20 C7 C7 BE FA BD C0 B4 CF B4 D9 2E 00 00 00 00 00 00 00 00 00 
+3.RESULT!!
+enc(-d) padding(1) key(12345678abcdefgh) s(44:[XOaJ4f6clmlreFvkx6H+9y1W8bk42Q1zhIUtdFDtcGk=])->t(32:[무궁화 꽃이 피었습니다.])
+*
+[ AES265 - CBC - PKCS ]
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>aes -e 3 "12345678abcdefghABCDEFGH12345678" "무궁화 꽃이 피었습니다." 
+1.STRING:
+[7/u+x9gdBd/oYkf/3Zqcnm1oDO1+8SYB+iuEAOsmmDw=]
+2.HEXA:
+37 2F 75 2B 78 39 67 64 42 64 2F 6F 59 6B 66 2F 33 5A 71 63 6E 6D 31 6F 44 4F 31 2B 38 53 59 42 2B 69 75 45 41 4F 73 6D 6D 44 77 3D 
+3.RESULT!!
+enc(-e) padding(3) key(12345678abcdefghABCDEFGH12345678) s(23:[무궁화 꽃이 피었습니다.])->t(44:[7/u+x9gdBd/oYkf/3Zqcnm1oDO1+8SYB+iuEAOsmmDw=])
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>aes -d 3 "12345678abcdefghABCDEFGH12345678" "7/u+x9gdBd/oYkf/3Zqcnm1oDO1+8SYB+iuEAOsmmDw=" 
+1.STRING:
+[무궁화 꽃이 피었습니다._________]
+2.HEXA:
+B9 AB B1 C3 C8 AD 20 B2 C9 C0 CC 20 C7 C7 BE FA BD C0 B4 CF B4 D9 2E 09 09 09 09 09 09 09 09 09 
+3.RESULT!!
+enc(-d) padding(3) key(12345678abcdefghABCDEFGH12345678) s(44:[7/u+x9gdBd/oYkf/3Zqcnm1oDO1+8SYB+iuEAOsmmDw=])->t(32:[무궁화 꽃이 피었습니다.									])
+*　
+=============================================================================================
+*　
+[ BLOWFISH(8) - ECB - NULL ]
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>blowfish -e 1 "12345678" "무궁화 꽃이 피었습니다." 
+1.STRING:
+[WXo1RHBDNeWjmHIysrwpZ/NpvXLeaEOm]
+2.HEXA:
+57 58 6F 31 52 48 42 44 4E 65 57 6A 6D 48 49 79 73 72 77 70 5A 2F 4E 70 76 58 4C 65 61 45 4F 6D 
+3.RESULT!!
+enc(-e) padding(1) key(12345678) s(23:[무궁화 꽃이 피었습니다.])->t(32:[WXo1RHBDNeWjmHIysrwpZ/NpvXLeaEOm])
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>blowfish -d 1 "12345678" "WXo1RHBDNeWjmHIysrwpZ/NpvXLeaEOm" 
+1.STRING:
+[무궁화 꽃이 피었습니다._]
+2.HEXA:
+B9 AB B1 C3 C8 AD 20 B2 C9 C0 CC 20 C7 C7 BE FA BD C0 B4 CF B4 D9 2E 00 
+3.RESULT!!
+enc(-d) padding(1) key(12345678) s(32:[WXo1RHBDNeWjmHIysrwpZ/NpvXLeaEOm])->t(24:[무궁화 꽃이 피었습니다.])
+*
+[ BLOWFISH(32) - CBC - PKCS ]
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>blowfish -e 3 "12345678abcdefghABCDEFGH12345678" "무궁화 꽃이 피었습니다." 
+1.STRING:
+[0pqtRmZmTT8R0Ld6T7MmJHFnFkjqUpxe]
+2.HEXA:
+30 70 71 74 52 6D 5A 6D 54 54 38 52 30 4C 64 36 54 37 4D 6D 4A 48 46 6E 46 6B 6A 71 55 70 78 65 
+3.RESULT!!
+enc(-e) padding(3) key(12345678abcdefghABCDEFGH12345678) s(23:[무궁화 꽃이 피었습니다.])->t(32:[0pqtRmZmTT8R0Ld6T7MmJHFnFkjqUpxe])
+
+C:\Users\이태훈\Desktop\Study\C\0.TeamSubject\EnryptExamples>blowfish -d 3 "12345678abcdefghABCDEFGH12345678" "0pqtRmZmTT8R0Ld6T7MmJHFnFkjqUpxe" 
+1.STRING:
+[무궁화 꽃이 피었습니다._]
+2.HEXA:
+B9 AB B1 C3 C8 AD 20 B2 C9 C0 CC 20 C7 C7 BE FA BD C0 B4 CF B4 D9 2E 01 
+3.RESULT!!
+enc(-d) padding(3) key(12345678abcdefghABCDEFGH12345678) s(32:[0pqtRmZmTT8R0Ld6T7MmJHFnFkjqUpxe])->t(24:[무궁화 꽃이 피었습니다.])
+*　
+=============================================================================================

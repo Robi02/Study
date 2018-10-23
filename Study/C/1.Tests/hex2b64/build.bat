@@ -1,0 +1,1 @@
+gcc -o h2b64.exe h2b64_main.c -lncryptor -lncoder -L lib -I include -I include/ncoder -I include/ncryptor

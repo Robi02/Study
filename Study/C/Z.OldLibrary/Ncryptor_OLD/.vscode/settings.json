@@ -1,0 +1,27 @@
+{
+    "files.associations": {
+        "stdio.h": "c",
+        "iostream": "c",
+        "cstddef": "cpp",
+        "ncryptor.h": "c",
+        "ncryptor_main.h": "c",
+        "cmath": "c",
+        "initializer_list": "c",
+        "type_traits": "c",
+        "xstring": "c",
+        "xutility": "c",
+        "ncrypt_aria.h": "c",
+        "stdlib.h": "c",
+        "ncryptor_define.h": "c",
+        "ncrypt_hight.h": "c",
+        "kisa_seed.h": "c",
+        "ncrypt_seed.h": "c",
+        "system_error": "c",
+        "kisa_typedef.h": "c",
+        "ncrypt_common.h": "c",
+        "ncrypt_typedef.h": "c",
+        "xlocale": "c",
+        "time.h": "c",
+        "libncrypt.h": "c"
+    }
+}

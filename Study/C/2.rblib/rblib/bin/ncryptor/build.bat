@@ -1,0 +1,3 @@
+gcc -c common_ncrypt.c ncrypt_aes.c ncrypt_aria.c ncrypt_blowfish.c ncrypt_des.c ncrypt_hight.c ncrypt_seed.c ncryptor.c ../bytestream.c ../rbmath.c -I ../../include -I ../../include/ncryptor -lws2_32
+rem gcc -o ncryptor_test.exe common_ncrypt.o ncrypt_aes.o ncrypt_aria.o ncrypt_blowfish.o ncrypt_des.o ncrypt_hight.o ncrypt_seed.o ncryptor.o ../bytestream.c ../rbmath.c -I ../../include -I ../../include/ncryptor -lws2_32
+ar -urcs ncryptor.lib common_ncrypt.o ncrypt_aes.o ncrypt_aria.o ncrypt_blowfish.o ncrypt_des.o ncrypt_hight.o ncrypt_seed.o ncryptor.o bytestream.o rbmath.o
