@@ -1,7 +1,7 @@
 #ifndef __RBTIME_H__
 #define __RBTIME_H__
 
-#include "common_typedef.h"
+#include "common_define.h"
 
 typedef enum _TIME_TYPE
 {

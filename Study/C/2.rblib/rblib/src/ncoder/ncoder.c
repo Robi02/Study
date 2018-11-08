@@ -119,7 +119,7 @@ static int ncoder_test(int argc, char **argv)
     return 0;
 }
 
-//int main(int argc, char **argv)
-//{
-//  return ncoder_test(argc, argv);
-//}
+int main(int argc, char **argv)
+{
+  return ncoder_test(argc, argv);
+}

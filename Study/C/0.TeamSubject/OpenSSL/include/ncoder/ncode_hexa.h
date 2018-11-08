@@ -1,7 +1,7 @@
 #ifndef __NCODE_HEXA_H__
 #define __NCODE_HEXA_H__
 
-#include "common_typedef.h"
+#include "common_define.h"
 
 typedef struct _NCODE_TYPE_HEXA_ARGS
 {

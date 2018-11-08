@@ -1,4 +1,5 @@
 #include "common_include.h"
+#include "bytestream.h"
 #include "ncode_base64.h"
 
 /* [ BASE64 Encoding ]

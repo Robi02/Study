@@ -1,7 +1,6 @@
 #ifndef __NCRYPT_ARIA_H__
 #define __NCRYPT_ARIA_H__
 
-#include "common_typedef.h"
 #include "common_ncrypt.h"
 
 typedef enum _NCRYPT_ARIA_ROUNDS

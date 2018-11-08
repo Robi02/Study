@@ -1,7 +1,6 @@
 #ifndef __NCRYPT_SEED_H__
 #define __NCRYPT_SEED_H__
 
-#include "common_typedef.h"
 #include "common_ncrypt.h"
 
 typedef struct _NCRYPT_ALGO_SEED_ARGS

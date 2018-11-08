@@ -1,7 +1,7 @@
 #ifndef __RBMATH_H__
 #define __RBMATH_H__
 
-#include "common_typedef.h"
+#include "common_define.h"
 
 int max(int first, int second);
 int min(int first, int second);

@@ -1,7 +1,7 @@
 #ifndef __COMMOM_NCRYPT_H__
 #define __COMMOM_NCRYPT_H__
 
-#include "common_typedef.h"
+#include "common_define.h"
 
 // Algorithms //
 typedef enum _NCRYPT_ALGO

@@ -1,0 +1,85 @@
+import java.util.zip.CRC32;
+import java.util.Arrays;
+
+public class CRC {
+
+    public static String streamToHexa(byte[] inByte) {
+        StringBuilder sb = new StringBuilder();
+
+        for (byte b : inByte) {
+            sb.append(String.format("%02X ", b));
+        }
+
+        return sb.toString();
+    }
+
+    public static String longToBinary(long in) {
+        StringBuilder sb = new StringBuilder();
+        long mod = 0;
+
+        while (in != 0) {
+            mod = in % 2;
+            in /= 2;
+            sb.append(mod);
+        }
+
+        sb.reverse();
+        return sb.toString();
+    }
+
+    public static byte[] longToByteArray(long value) {
+        return new byte[] {
+            (byte) (value >> 56),
+            (byte) (value >> 48),
+            (byte) (value >> 40),
+            (byte) (value >> 32),
+            (byte) (value >> 24),
+            (byte) (value >> 16),
+            (byte) (value >> 8),
+            (byte) value
+        };
+    }
+
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Input String!\n");
+            return;
+        }
+
+        try {
+            // CRC generate
+            System.out.println("\n[CRC32-Generate]");
+            String inStr = args[0];
+            byte[] inByte = inStr.getBytes("EUC-KR");
+            System.out.println("- Input(String): " + inStr);
+            System.out.println("- Input(Stream): " + streamToHexa(inByte));
+
+            CRC32 crc32 = new CRC32();
+            crc32.update(inByte);
+            long result = crc32.getValue();
+            byte[] rstByte = longToByteArray(result);
+            rstByte = Arrays.copyOfRange(rstByte, 4, 8);
+            System.out.println("> Result(CRC32-Long): " + result);
+            System.out.println("> Result(CRC32-Bin ): " + longToBinary(result));
+            System.out.println("> Result(CRC32-Hexa): " + streamToHexa(rstByte));
+
+            // CRC verification
+            crc32.reset();
+            System.out.println("\n[CRC32-Verification]");
+            byte[] crcInStr = new byte[inByte.length + rstByte.length];
+            System.arraycopy(inByte, 0, crcInStr, 0, inByte.length);
+            System.arraycopy(rstByte, 0, crcInStr, inByte.length, rstByte.length);
+            System.out.println(">> newInput: " + streamToHexa(crcInStr));
+
+            crc32.update(crcInStr);
+            result = crc32.getValue();
+            rstByte = longToByteArray(result);
+            System.out.println(">> Result(CRC32-Long): " + result);
+            System.out.println(">> Result(CRC32-Bin ): " + longToBinary(result));
+            System.out.println(">> Result(CRC32-Hexa): " + streamToHexa(rstByte));
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

@@ -1,7 +1,7 @@
 #ifndef __BYTESTREAM_H__
 #define __BYTESTREAM_H__
 
-#include "common_typedef.h"
+#include "common_define.h"
 
 typedef struct _iobuf FILE;
 
