@@ -1,18 +1,11 @@
 #include "openssl_rsa_main.h"
+#include <openssl/err.h>
 
-#define SZ_BUF_MAX 256
-#define RSA_BIT 1024
+#define SZ_BUF_MAX 512 /* Theoretical max buf size : 256 * 4 / 3 = 342 */
 #define RSA_PUBLIC_PEM_NAME "./public.pem"
 #define RSA_PRIVATE_PEM_NAME "./private.pem"
 
-/*
-[Encoded Message(EM)]
-> { EM = 0x00 || 0x02 || PS || 0x00 || Msg }
-1. EM = 256byte(2048bit), PS = 8byte, Max msg = 245byte
-2. EM = 128byte(1024bit), PS = 8byte, Max msg = 120byte
-*/
-
-int Generate_RSA_Key()
+int Generate_RSA_Key(int rsaBit)
 {
     int             ret = 0;
     RSA             *rsa = NULL;
@@ -26,7 +19,7 @@ int Generate_RSA_Key()
     if (ret != 1) { fprintf(stdout, "RSA public key set error!\n"); goto END; }
  
     rsa = RSA_new();
-    ret = RSA_generate_key_ex(rsa, RSA_BIT, bne, NULL);
+    ret = RSA_generate_key_ex(rsa, rsaBit, bne, NULL);
     if (ret != 1) { fprintf(stdout, "RSA private key generate error!\n"); goto END; }
  
     // 2. Save RSA public key
@@ -50,7 +43,8 @@ END:
 
 int Encrypt_RSA(unsigned char *pPlainText, size_t szPlainText, unsigned char *pCipherText)
 {
-    unsigned char           tempBuf[SZ_BUF_MAX];
+    int                     szTempBuf = SZ_BUF_MAX * 2;
+    unsigned char           tempBuf[szTempBuf];
     NCODE_TYPE_BASE64_ARGS  stB64Args;
     int                     ret = 0, len = -1;
     RSA                     *rsa = NULL;
@@ -64,15 +58,16 @@ int Encrypt_RSA(unsigned char *pPlainText, size_t szPlainText, unsigned char *pC
     /* 2. Encrypt with public key */
     PEM_read_bio_RSAPublicKey(bp_public, &rsa, NULL, NULL);
     len = RSA_public_encrypt(szPlainText, pPlainText, pCipherText, rsa, RSA_PKCS1_PADDING);
+    if (len == -1) { fprintf(stdout, "RSA_public_encrypt error!\n"); goto END; }
 
     /* 3. Encode binary cipher to Base64 text */
     stB64Args.isEncode   = 1;
     stB64Args.pbInStream = pCipherText;
     stB64Args.szInStream = len;
     stB64Args.pbOutBuf   = tempBuf;
-    stB64Args.szOutBuf   = SZ_BUF_MAX;
+    stB64Args.szOutBuf   = szTempBuf;
     len = Ncode(NCODE_TYPE_BASE64, &stB64Args, sizeof(stB64Args));
-    memset(pCipherText, 0x00, SZ_BUF_MAX);
+    memset(pCipherText, 0x00, szTempBuf);
     memcpy(pCipherText, tempBuf, len);
 
 END:
@@ -84,7 +79,8 @@ END:
 
 int Decrypt_RSA(unsigned char *pCipherText, size_t szCipherText, unsigned char *pPlainText)
 {
-    unsigned char           tempBuf[SZ_BUF_MAX];
+    int                     szTempBuf = SZ_BUF_MAX * 2;
+    unsigned char           tempBuf[szTempBuf];
     NCODE_TYPE_BASE64_ARGS  stB64Args;
     int                     ret = 0, len = -1;
     RSA                     *rsa = NULL;
@@ -95,7 +91,7 @@ int Decrypt_RSA(unsigned char *pCipherText, size_t szCipherText, unsigned char *
     stB64Args.pbInStream = pCipherText;
     stB64Args.szInStream = szCipherText;
     stB64Args.pbOutBuf   = tempBuf;
-    stB64Args.szOutBuf   = SZ_BUF_MAX;
+    stB64Args.szOutBuf   = szTempBuf;
     len = Ncode(NCODE_TYPE_BASE64, &stB64Args, sizeof(stB64Args));
 
     /* 2. Open PEM private key to BIO */
@@ -106,6 +102,7 @@ int Decrypt_RSA(unsigned char *pCipherText, size_t szCipherText, unsigned char *
     /* 3. Decrypt with private key */
     PEM_read_bio_RSAPrivateKey(bp_private, &rsa, NULL, NULL);
     len = RSA_private_decrypt(len, tempBuf, pPlainText, rsa, RSA_PKCS1_PADDING);
+    if (len == -1) { fprintf(stdout, "RSA_public_decrypt error!\n"); goto END; }
 
 END:
     /* 4. Free temporal memory */
@@ -114,27 +111,67 @@ END:
     return len;
 }
 
+void PrintUsage()
+{
+    fprintf(stdout, "[rsacrypt Usage]\n");
+    fprintf(stdout, "rsacrypt.exe [Op] [Bit] [String]\n");
+    fprintf(stdout, " [Op]\n");
+    fprintf(stdout, "  1. -e : Encryption.\n");
+    fprintf(stdout, "  2. -d : Decryption.\n");
+    fprintf(stdout, " [Bit]\n");
+    fprintf(stdout, "  1. -1024 : RSA-1024.\n");
+    fprintf(stdout, "  2. -2048 : RSA-2048.\n");
+}
+
 int main(int argc, char **argv)
 {
-    int len = 0;
-    unsigned char *TEST = "Hello World of RSA!";
-    unsigned char bufPlainText[SZ_BUF_MAX], bufCipherText[SZ_BUF_MAX];
+    int             rtlen = 0, keyBits = 0, maxlen = 0;
+    unsigned char   ops[3], bits[6];
+    unsigned char   bufPlainText[SZ_BUF_MAX], bufCipherText[SZ_BUF_MAX];
 
-    memset(bufPlainText, 0x00, SZ_BUF_MAX);
-    memcpy(bufPlainText, TEST, strlen(TEST)); // test
+    if (argc != 4) { PrintUsage(); return -1; }
 
-    fprintf(stdout, "> PlainText : %s\n", bufPlainText);
-    Generate_RSA_Key();
+    memset(bufPlainText, 0x00, sizeof(bufPlainText));
+    memset(bufCipherText, 0x00, sizeof(bufCipherText));
+    memset(ops, 0x00, sizeof(ops));
+    memset(bits, 0x00, sizeof(bits));
+    memcpy(ops, argv[1], 3);    /* [Op] */
+    memcpy(bits, argv[2], 6);   /* [Bits] */
 
-    memset(bufCipherText, 0x00, SZ_BUF_MAX);
-    len = Encrypt_RSA(bufPlainText, strlen(bufPlainText), bufCipherText);
+    /* [ PKCS1(v1.5) Encoded Message(EM) ]
+     { EM = 0x00 || 0x02 || PS || 0x00 || Msg }
+    1. EM = 256byte(2048bit), PS = 8byte + 3(0x00, 0x02, 0x00), Max msg = 245byte
+    2. EM = 128byte(1024bit), PS = 8byte + 3(0x00, 0x02, 0x00), Max msg = 117byte */
+    keyBits = (strcmp(bits, "-1024") == 0 ? 1024 : 2048);
+    maxlen  = (keyBits == 1024 ? 117 : 245);
 
-    fprintf(stdout, "> CipherText : %s\n", bufCipherText);
+    if (strcmp(ops, "-e") == 0)
+    {
+        /* Encryption */
+        memcpy(bufPlainText, argv[3], strlen(argv[3])); /* [(Plain)String] */
+        fprintf(stdout, "\n> InputPlainText : [%s]\n", bufPlainText);
 
-    memset(bufPlainText, 0x00, SZ_BUF_MAX);
-    len = Decrypt_RSA(bufCipherText, len, bufPlainText);
+        Generate_RSA_Key(keyBits);
+        if (rtlen == -1) { fprintf(stdout, "Error has occurred while 'Generate_RSA_Key()'!\n"); return -1; }
 
-    fprintf(stdout, "> DecryptText : %s\n", bufPlainText);
+        rtlen = Encrypt_RSA(bufPlainText, min(strlen(bufPlainText), maxlen), bufCipherText);
+        if (rtlen == -1) { fprintf(stdout, "Error has occurred while 'Encrypt_RSA()'!\n"); return -1; }
+
+        fprintf(stdout, "\n> CipherText : [%s]\n", bufCipherText);
+        fprintf(stdout, "\n - Public key PEM '%s' saved.\n", RSA_PUBLIC_PEM_NAME);
+        fprintf(stdout, "\n - Private key PEM '%s' saved.\n", RSA_PRIVATE_PEM_NAME);
+    }
+    else
+    {
+        /* Decryption */
+        memcpy(bufCipherText, argv[3], strlen(argv[3])); /* [(Cipher)String] */
+        fprintf(stdout, "\n> InputCipherText : [%s]\n", bufCipherText);
+
+        rtlen = Decrypt_RSA(bufCipherText, strlen(bufCipherText), bufPlainText);
+        if (rtlen == -1) { fprintf(stdout, "Error has occurred while 'Decrypt_RSA()'!\n"); return -1; }
+        
+        fprintf(stdout, "\n> DecryptText : [%s]\n", bufPlainText);
+    }    
 
     return 0;
 }
