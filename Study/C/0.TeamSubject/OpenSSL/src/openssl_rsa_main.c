@@ -1,7 +1,7 @@
 #include "openssl_rsa_main.h"
 #include <openssl/err.h>
 
-#define SZ_BUF_MAX 512 /* Theoretical max buf size : 256 * 4 / 3 = 342 */
+#define SZ_BUF_MAX 512 /* Theoretical RSA max buf size : 256 * 4 / 3 = 342 */
 #define RSA_PUBLIC_PEM_NAME "./public.pem"
 #define RSA_PRIVATE_PEM_NAME "./private.pem"
 
@@ -125,6 +125,26 @@ void PrintUsage()
 
 int main(int argc, char **argv)
 {
+    /*
+        [ R S A ]
+        1. 두 개의 'Prime Number' p,q를 생성.
+        2. (p-1),(q-1)과 각각 서로소(최대공약수가 1)인 정수 e를 선택.
+        3. e*d 를 (p-1)(q-1)로 나눈 나머지가 1이 되도록 하는 d를 찾음.
+        4. N=pq를 계산한 후, N과 e를 공개키로 공개. d는 개인키로 사용.
+        5. p, q, (p-1), (q-1)은 보안 문제가 있을 수 있으므로 파기.
+        6. 평문을 (a^e)%N으로 암호화하여 전송, 암호문을 (c^d)%N으로 복호화하여 사용.
+
+        + 키 보관 방식에는 크게 2가지가 존재
+          1) PKCS1 - publicKey, privateKey를 보관하는 방식으로 무작위 난수를 패딩에 사용.
+          2) X509/PKCS8 - publicKey(X509), privateKey(PKCS8)을 사용하여 여러 부수정보를 함께 키로 암호화. (자바 RSA디폴트)
+             PKCS1방식이 2) 방식에 포함되어 있다.
+
+          => ASN.1 방식으로 키를 표현한 것을 Serialize하여 DER로 보관하며, DER 형식을 BASE64로 나타내어 PEM 확장자의 파일로 저장한다.
+             - ASN : Abstract Syntax Notation
+             - DER : Distinguished Encoding Rule
+             - PEM : Privacy-enhanced Electronic Mail
+    */
+
     int             rtlen = 0, keyBits = 0, maxlen = 0;
     unsigned char   ops[3], bits[6];
     unsigned char   bufPlainText[SZ_BUF_MAX], bufCipherText[SZ_BUF_MAX];

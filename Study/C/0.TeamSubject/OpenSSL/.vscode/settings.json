@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "openssl_hash_main.h": "c",
-        "lib_ncoder.h": "c"
+        "lib_ncoder.h": "c",
+        "crypto.h": "c"
     }
 }

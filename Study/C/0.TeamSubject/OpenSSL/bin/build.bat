@@ -18,5 +18,9 @@ gcc -o %PWD_DIR%/openssl_hash_test.exe %SRC_DIR%/openssl_hash_main.c ^
 -I%INC_DIR% -I%INC_DIR%/ncoder ^
 -L%LIB_DIR% -lcommrblib -lncoder -llibcrypto -llibssl -lws2_32
 rem ================================================================
+gcc -o %PWD_DIR%/crc_test.exe %SRC_DIR%/crc_main.c ^
+-I%INC_DIR% -I%INC_DIR%/ncoder ^
+-L%LIB_DIR% -lcommrblib -lncoder
+rem ================================================================
 echo "Compile Done!"
 endlocal
