@@ -58,25 +58,9 @@ public class CRC {
             crc32.update(inByte);
             long result = crc32.getValue();
             byte[] rstByte = longToByteArray(result);
-            rstByte = Arrays.copyOfRange(rstByte, 4, 8);
-            System.out.println("> Result(CRC32-Long): " + result);
             System.out.println("> Result(CRC32-Bin ): " + longToBinary(result));
             System.out.println("> Result(CRC32-Hexa): " + streamToHexa(rstByte));
-
-            // CRC verification
-            crc32.reset();
-            System.out.println("\n[CRC32-Verification]");
-            byte[] crcInStr = new byte[inByte.length + rstByte.length];
-            System.arraycopy(inByte, 0, crcInStr, 0, inByte.length);
-            System.arraycopy(rstByte, 0, crcInStr, inByte.length, rstByte.length);
-            System.out.println(">> newInput: " + streamToHexa(crcInStr));
-
-            crc32.update(crcInStr);
-            result = crc32.getValue();
-            rstByte = longToByteArray(result);
-            System.out.println(">> Result(CRC32-Long): " + result);
-            System.out.println(">> Result(CRC32-Bin ): " + longToBinary(result));
-            System.out.println(">> Result(CRC32-Hexa): " + streamToHexa(rstByte));
+            System.out.println("> Result(CRC32-Long): " + result);
         }
         catch (Exception e) {
             e.printStackTrace();
