@@ -1,0 +1,1 @@
+attrFiles: res/config/HanaAttrClient_Head.txt, res/config/HanaAttrClient_Data.txt, res/config/HanaAttrClient_Tail.txt res/config/HanaAttrServer.txt

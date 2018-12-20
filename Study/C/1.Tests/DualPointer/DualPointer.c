@@ -38,6 +38,7 @@ void DestroyWarp(Warp *pSrcWarp)
 {
     if (pSrcWarp != NULL)
     {
+        pSrcWarp->pNextWarp = NULL;
         free(pSrcWarp);
     }
 }

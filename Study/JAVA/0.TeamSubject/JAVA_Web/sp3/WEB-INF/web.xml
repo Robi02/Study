@@ -1,0 +1,48 @@
+<web-app
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_4_0.xsd" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_4_0.xsd"
+    version="4.0">
+
+    <display-name>Simple Servlet Webapp</display-name>
+
+	<!-- 1.Ajax -->
+	<servlet>
+		<servlet-name>AjaxFcexResponse</servlet-name>
+		<servlet-class>com.ksnet.AjaxFcexService</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AjaxFcexResponse</servlet-name>
+		<url-pattern>/ajax</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 2.Iframe -->
+	<servlet>
+		<servlet-name>IframeFcexResponse</servlet-name>
+		<servlet-class>com.ksnet.IframeFcexService</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>IframeFcexResponse</servlet-name>
+		<url-pattern>/iframe</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>IframeFcexResponse</servlet-name>
+		<url-pattern>/iframe/result</url-pattern>
+	</servlet-mapping>
+	
+	<!-- 3.Jsonp -->
+	<servlet>
+		<servlet-name>JsonpFcexResponse</servlet-name>
+		<servlet-class>com.ksnet.JsonpFcexService</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>JsonpFcexResponse</servlet-name>
+		<url-pattern>/jsonp</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>JsonpFcexResponse</servlet-name>
+		<url-pattern>/jsonp/result</url-pattern>
+	</servlet-mapping>
+	
+</web-app>

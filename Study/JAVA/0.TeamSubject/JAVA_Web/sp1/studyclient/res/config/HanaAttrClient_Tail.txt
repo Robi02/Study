@@ -1,0 +1,12 @@
+COMMENT	STRING	STRING	STRING	INT	INT	BYTE	COMMENT
+순번	항목명	항목명(Code)	종류	시작인덱스	길이	기본값	비고
+1	식별코드	t_idCode	X	0	1	E	'E'
+2	총의뢰건수	t_totalRequestCnt	9	1	7		
+3	총의뢰금액	t_totalRequestPrice	9	8	13		
+4	정상처리건수	t_normalProcessingCnt	9	21	7		당행이 처리후 부여. 업체는 '0' 투입
+5	정상처리금액	t_normalProcessingPrice	9	28	13		당행이 처리후 부여. 업체는 '0' 투입
+6	불능처리건수	t_disableProcessingCnt	9	41	7		당행이 처리후 부여. 업체는 '0' 투입
+7	불능처리금액	t_disableProcessingPrice	9	48	13		당행이 처리후 부여. 업체는 '0' 투입
+8	복기부호	t_recoveryCode	X	61	8	3706	복기부호 값의 마지막 4자리 투입
+9	공란	t_blank	X	69	11		
+10	개행문자	t_newLine	X	80	2		CR+LF

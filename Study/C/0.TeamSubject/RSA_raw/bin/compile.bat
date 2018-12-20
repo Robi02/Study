@@ -1,0 +1,1 @@
+gcc -o modexp_rsaref ../src/modexp_rsaref.c -L../lib -L../lib/rsaref -llibcrypto -lncoder -lrsaref -lws2_32 -I../include -I../include/rsaref

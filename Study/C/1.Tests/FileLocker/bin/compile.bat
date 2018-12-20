@@ -1,0 +1,1 @@
+gcc -o FileLocker.exe ../src/FileLocker.c -I ../include -I ../include/ncoder -I ../include/ncryptor -L ../lib -lcommrblib -lncoder -lncryptor -lws2_32

@@ -2,6 +2,7 @@
 
 int Hash_SHA(unsigned char *pInStr, size_t szInStr, unsigned char *pOuBuf)
 {
+	/* 32byte output */
     SHA256_CTX ctx;
 
     /* Text binary to SHA256 */
@@ -14,6 +15,7 @@ int Hash_SHA(unsigned char *pInStr, size_t szInStr, unsigned char *pOuBuf)
 
 int Hash_md5(unsigned char *pInStr, size_t szInStr, unsigned char *pOuBuf)
 {
+	/* 16byte output */
     if (MD5(pInStr, szInStr, pOuBuf) == NULL)
     {
         fprintf(stdout, "MD5() Error!\n");
