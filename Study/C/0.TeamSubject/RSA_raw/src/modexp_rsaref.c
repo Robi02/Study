@@ -286,6 +286,8 @@ int EnDecryptRSA(int isEncryption, char *pInStr, char *pOutStr, char *pE, char *
         unsigned char    arRandom[MAX_RSA_MODULUS_LEN];
         int              szLen = -1;
         memset(arRandom, 0x20, MAX_RSA_MODULUS_LEN); // test @@
+        arRandom[0] = 0x00;
+        arRandom[1] = 0x01;
 
         memset(&stPubKey, 0x00, sizeof(R_RSA_PUBLIC_KEY));
         stPubKey.bits = RSA_BIT;
