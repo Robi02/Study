@@ -39,7 +39,7 @@ int KeyAdjust(BYTE abKeyOut[32], BYTE *pbKeyIn)
 
     szKeyIn = strlen(pbKeyIn);
     memset(abKeyOut, 0x00, 32);
-    memcpy(abKeyOut, pbKeyIn, max(szKeyIn, 32));
+    memcpy(abKeyOut, pbKeyIn, min(szKeyIn, 32));
 
     return 0;
 }
@@ -102,10 +102,6 @@ int EncryptFileBlock(BYTE *pbOutStream, size_t szOutStream, FileBlock *pstInBloc
 
     memset(&stAes, 0x00, sizeof(stAes));
     memset(arIV, 0x00, sizeof(arIV));
-
-    fprintf(stdout, "\nBeforeAES(len:%d)\n", sizeof(FileBlock));
-    PrintStreamToHexa((BYTE*)pstInBlock, sizeof(FileBlock));
-    fprintf(stdout, "\n");
     
     stAes.stArgs.isEncrypt  = 1;
     stAes.stArgs.eAlgo      = NCRYPT_ALGO_AES;
@@ -121,38 +117,7 @@ int EncryptFileBlock(BYTE *pbOutStream, size_t szOutStream, FileBlock *pstInBloc
     stAes.stArgs.szOutBuf   = szOutStream;
     stAes.eKeyBit           = NCRYPT_AES_KEYBIT_256;
 
-    //return Ncrypt(&stAes, sizeof(stAes));
-    int rt = Ncrypt(&stAes, sizeof(stAes));
-
-    fprintf(stdout, "\nAfterAES-Enc(len:%d)\n", rt);
-    PrintStreamToHexa(pbOutStream, rt);
-    fprintf(stdout, "\n");
-
-    BYTE arTempBlock[szOutStream];
-
-    memset(&stAes, 0x00, sizeof(stAes));
-    memset(arIV, 0x00, sizeof(arIV));
-    stAes.stArgs.isEncrypt  = 0;
-    stAes.stArgs.eAlgo      = NCRYPT_ALGO_AES;
-    stAes.stArgs.ePadd      = NCRYPT_PADD_NULL;
-    stAes.stArgs.eMode      = NCRYPT_MODE_CBC;
-    stAes.stArgs.pbIV       = arIV;
-    stAes.stArgs.szIV       = sizeof(arIV);
-    stAes.stArgs.pbKey      = abAesKey;
-    stAes.stArgs.szKey      = 32;
-    stAes.stArgs.pbInStream = pbOutStream;
-    stAes.stArgs.szInStream = rt;
-    stAes.stArgs.pbOutBuf   = arTempBlock;
-    stAes.stArgs.szOutBuf   = sizeof(arTempBlock);
-    stAes.eKeyBit           = NCRYPT_AES_KEYBIT_256;
-
-    rt = Ncrypt(&stAes, sizeof(stAes));
-
-    fprintf(stdout, "\nAfterAES-Dec(len:%d)\n", rt);
-    PrintStreamToHexa(arTempBlock, rt);
-    fprintf(stdout, "\n");
-
-    return rt;
+    return Ncrypt(&stAes, sizeof(stAes));
 }
 
 int DecryptStream(FileBlock *pstOutBlock, BYTE *pbInStream, size_t szInStream, BYTE abAesKey[32])
@@ -163,10 +128,6 @@ int DecryptStream(FileBlock *pstOutBlock, BYTE *pbInStream, size_t szInStream, B
 
     memset(&stAes, 0x00, sizeof(stAes));
     memset(arIV, 0x00, sizeof(arIV));
-
-    fprintf(stdout, "\nBeforeAES(len:%d)\n", szInStream);
-    PrintStreamToHexa((BYTE*)pbInStream, szInStream);
-    fprintf(stdout, "\n");
     
     stAes.stArgs.isEncrypt  = 0;
     stAes.stArgs.eAlgo      = NCRYPT_ALGO_AES;
@@ -182,12 +143,7 @@ int DecryptStream(FileBlock *pstOutBlock, BYTE *pbInStream, size_t szInStream, B
     stAes.stArgs.szOutBuf   = sizeof(arTempBlock);
     stAes.eKeyBit           = NCRYPT_AES_KEYBIT_256;
 
-    int rt = Ncrypt(&stAes, sizeof(stAes));
-
-    fprintf(stdout, "\nAfterAES(len:%d)\n", rt);
-    PrintStreamToHexa(arTempBlock, rt);
-    fprintf(stdout, "\n");
-
+    Ncrypt(&stAes, sizeof(stAes));;
     memcpy((BYTE*)pstOutBlock, arTempBlock, sizeof(FileBlock));
 
     return sizeof(FileBlock);
@@ -214,9 +170,9 @@ size_t MakeSteramFromFileBlock(BYTE *pbOutStream, FileBlock *pstFromBlock)
     BYTE abHeader[szNewHeader];
 
     memset(abHeader, 0x00, szNewHeader);
-    memcpy(abHeader, pstFromBlock->abHeader, sizeof(pstFromBlock->abHeader));
-    szData = atoi(abHeader);                                                    // Header : szData
-    memcpy(pbOutStream, pstFromBlock->abData, szData);                          // Data
+    memcpy(abHeader, &pstFromBlock->abHeader[1], sizeof(pstFromBlock->abHeader) - 1);
+    szData = atoi(abHeader);                            // Header : szData
+    memcpy(pbOutStream, pstFromBlock->abData, szData);  // Data
 
     return szData;
 }
