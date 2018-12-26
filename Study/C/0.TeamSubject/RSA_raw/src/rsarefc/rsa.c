@@ -18,7 +18,6 @@ static int RSAPrivateBlock PROTO_LIST
 
 /* RSA public-key encryption, according to PKCS #1.
  */
-#include<stdio.h>
 int RSAPublicEncrypt
   (output, outputLen, input, inputLen, publicKey, rnos)/* (R_RANDOM_STRUCT *randomStruct;) -> unsigned char *rnos */
 unsigned char *output;                                      /* output block */
@@ -150,23 +149,6 @@ R_RSA_PRIVATE_KEY *privateKey;                           /* RSA private key */
 
 /* RSA private-key decryption, according to PKCS #1.
  */
-// @@
-#include <string.h>
-void PrintStreamToHexa_test(const unsigned char *pbStream, int szStream)
-{
-    char pBuf[szStream * 3 + 1];
-    int i;
-
-    memset(pBuf, 0x00, sizeof(pBuf));
-
-    for ( i = 0; i < szStream; ++i )
-    {
-        sprintf(&pBuf[i * 3], "%02X ", pbStream[i]);
-    }
-
-    fprintf(stdout, "%s\n", pBuf);
-} // @@
-
 int RSAPrivateDecrypt (output, outputLen, input, inputLen, privateKey)
 unsigned char *output;                                      /* output block */
 unsigned int *outputLen;                          /* length of output block */
@@ -190,14 +172,9 @@ R_RSA_PRIVATE_KEY *privateKey;                           /* RSA private key */
     return (RE_LEN);
   
   /* Require block type 2.
-   */
-  
-  if ((pkcsBlock[0] != 0) || (pkcsBlock[1] != 2)) // @@ here
-  {
-    PrintStreamToHexa_test(pkcsBlock, MAX_RSA_MODULUS_LEN);
-    printf("err again again!\n");
+   */  
+  if ((pkcsBlock[0] != 0) || (pkcsBlock[1] != 2))
    return (RE_DATA);
-  }
 
   for (i = 2; i < modulusLen-1; i++)
     /* separator */

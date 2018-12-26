@@ -5,27 +5,85 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#include <time.h>
 #include <openssl/bn.h>
-#include <openssl/err.h>
 
 /*
     [ 프로그램 목표 ]
-
-    1. 파일에 저장된 두 소수의 곱 pq=N(modulus), 비밀키 : d(private exponent), 공개키 : e(public exponent) 읽기.
-    2. RSA 구조체를 읽은 값으로 채워넣고 암/복호화 수행하기.
+     1. 파일에 저장된 두 소수의 곱 pq=N(modulus), 비밀키 : d(private exponent), 공개키 : e(public exponent) 읽기.
+     2. RSA 구조체를 읽은 값으로 채워넣고 암/복호화 수행하기.
 */
 /*
     [ 부가설명 : RSA 요약 ]
+     1. 두 소수 p, q를 준비
+     2. p-1, q-1과 각각 서로소인 정수 e를 준비
+     3. e*d를 (p-1)(q-1)로 나눈 나머지가 1이 되도록 하는 d를 찾음
+     4. N=pq를 계산한 후 N과 e를 공개 (공개키), d는 개인키로 사용
+     5. p, q, (p-1), (q-1)은 보안상 문제가 되므로 삭제
 
-    1. 두 소수 p, q를 준비
-    2. p-1, q-1과 각각 서로소인 정수 e를 준비
-    3. e*d를 (p-1)(q-1)로 나눈 나머지가 1이 되도록 하는 d를 찾음
-    4. N=pq를 계산한 후 N과 e를 공개 (공개키), d는 개인키로 사용
-    5. p, q, (p-1), (q-1)은 보안상 문제가 되므로 삭제
+    [ 복호화를 위한 추가 정보 ]
+     1. dP = d mod (p-1)
+     2. dQ = d mod (q-1)
+     3. qInv = q^-1 mod p
+     -> 연산량을 줄이기 위해 CRT(중국인의 나머지 정리) 를 사용하려면 위 값이 추가로 필요.
+        rasref 라이브러리는 CRT를 사용하기 때문에 파일에 저장해둔 위 값을 불러와서 사용해야 한다.
+
+    [ PKCS1 RFC3477 참고 문서 ]
+     - https://tools.ietf.org/html/rfc3447#section-7.2
+    
 */
 
 #define RSA_BIT 2048
 #define SZ_BUF_MAX 1024
+
+static void PrintStream(char *pStream, int szStream)
+{
+    int szBuf = szStream * 8 + 1;
+    char aOutBuf[szBuf];
+    int i;
+
+    for (i = 0; i < szStream; ++i)
+    {
+        char c = pStream[i];
+        int offset = i * 8;
+
+        aOutBuf[offset    ] = ((c & 0x80) >> 7 == 0 ? '0' : '1'); // 1000 0000
+        aOutBuf[offset + 1] = ((c & 0x40) >> 6 == 0 ? '0' : '1'); // 0100 0000
+        aOutBuf[offset + 2] = ((c & 0x20) >> 5 == 0 ? '0' : '1'); // 0010 0000
+        aOutBuf[offset + 3] = ((c & 0x10) >> 4 == 0 ? '0' : '1'); // 0001 0000
+        aOutBuf[offset + 4] = ((c & 0x08) >> 3 == 0 ? '0' : '1'); // 0000 1000
+        aOutBuf[offset + 5] = ((c & 0x04) >> 2 == 0 ? '0' : '1'); // 0000 0100
+        aOutBuf[offset + 6] = ((c & 0x02) >> 1 == 0 ? '0' : '1'); // 0000 0010
+        aOutBuf[offset + 7] = ((c & 0x01)      == 0 ? '0' : '1'); // 0000 0001
+    }
+
+    aOutBuf[szBuf - 1] = '\0';
+
+    fprintf(stdout, "%s\n", aOutBuf);
+}
+
+static void GenRandom(char *pBuf, int szBuf, unsigned char min, unsigned char max)
+{
+    int i;
+
+    if (min == max)
+    {
+        memset(pBuf, min, szBuf);
+        return;
+    }
+
+    if (min > max)
+    {
+        unsigned char temp = min;
+        min = max;
+        max = temp;
+    }
+
+    for (i = 0; i < szBuf; ++i)
+    {
+        pBuf[i] = (unsigned char)(rand() % (max - min))  + min;
+    }
+}
 
 int GetExpModPrimeFromFile(char *pExpFileName, char *pModFileName, char *pPrimeFileName,
                            char *pExpBuf_E, char *pExpBuf_D, char *pModBuf, char *pBuf_P, char *pBuf_Q,
@@ -170,92 +228,154 @@ int EnDecryptRSA(int isEncryption, char *pInStr, char *pOutStr, char *pE, char *
     // String to BIGNUM, BIGNUM to binary
     {
         BIGNUM *pBN = NULL;
+        int szVal = 0;
+
         // Exponent 'e' (Public key)
         if (pE != NULL && isEncryption)
         {
-            if (!BN_dec2bn(&pBN, pE) || !BN_bn2bin(pBN, arExp_E))
+            if (!BN_dec2bn(&pBN, pE) || !(rtLen = BN_bn2bin(pBN, arExp_E)))
             {   
                 fprintf(stdout, "[ERR] BN_dec2bn/BN_bn2bin(pE) error.\n");
                 if (pBN != NULL) BN_free(pBN);
                 goto END;
             }
+
+            // fprintf(stdout, "E(Hex):\n%s\n", BN_bn2hex(pBN)); // test
+
+            if ((szVal = MAX_RSA_MODULUS_LEN - rtLen) > 0)
+            {
+                memcpy(&arExp_E[szVal], arExp_E, rtLen);
+                memset(arExp_E, 0x00, szVal);
+            }
+
             BN_free(pBN);   pBN = NULL;
+
+            // fprintf(stdout, "\nE(Bin):\n"); PrintStream(arExp_E, MAX_RSA_MODULUS_LEN); fprintf(stdout, "\n"); // test
         }
         // Exponent 'd' (Private key)
         if (pD != NULL && !isEncryption)
         {
-            if (!BN_dec2bn(&pBN, pD) || !BN_bn2bin(pBN, arExp_D))
+            if (!BN_dec2bn(&pBN, pD) || !(rtLen = BN_bn2bin(pBN, arExp_D)))
             {
                 fprintf(stdout, "[ERR] BN_dec2bn/BN_bn2bin(pD) error.\n");
                 if (pBN != NULL) BN_free(pBN);
                 goto END;
             }
+
+            if ((szVal = MAX_RSA_MODULUS_LEN - rtLen) > 0)
+            {
+                memcpy(&arExp_D[szVal], arExp_D, rtLen);
+                memset(arExp_D, 0x00, szVal);
+            }
+
             BN_free(pBN);   pBN = NULL;
         }
         // Modulus 'N' (p * q)
         if (pN != NULL)
         {
-            if (!BN_dec2bn(&pBN, pN) || !BN_bn2bin(pBN, arMod))
+            if (!BN_dec2bn(&pBN, pN) || !(rtLen = BN_bn2bin(pBN, arMod)))
             {
                 fprintf(stdout, "[ERR] BN_dec2bn/BN_bn2bin(pN) error.\n");
                 if (pBN != NULL) BN_free(pBN);
                 goto END;
             }
+
+            if ((szVal = MAX_RSA_MODULUS_LEN - rtLen) > 0)
+            {
+                memcpy(&arMod[szVal], arMod, rtLen);
+                memset(arMod, 0x00, szVal);
+            }
+
             BN_free(pBN);   pBN = NULL;
         }
         // Prime number 'P'
         if (pP != NULL && !isEncryption)
         {
-            if (!BN_dec2bn(&pBN, pP) || !BN_bn2bin(pBN, ar_P))
+            if (!BN_dec2bn(&pBN, pP) || !(rtLen = BN_bn2bin(pBN, ar_P)))
             {
                 fprintf(stdout, "[ERR] BN_dec2bn/BN_bn2bin(pP) error.\n");
                 if (pBN != NULL) BN_free(pBN);
                 goto END;
             }
+
+            if ((szVal = MAX_RSA_PRIME_LEN - rtLen) > 0)
+            {
+                memcpy(&ar_P[szVal], ar_P, rtLen);
+                memset(ar_P, 0x00, szVal);
+            }
+
             BN_free(pBN);   pBN = NULL;
         }
         // Prime number 'Q'
         if (pQ != NULL && !isEncryption)
         {
-            if (!BN_dec2bn(&pBN, pQ) || !BN_bn2bin(pBN, ar_Q))
+            if (!BN_dec2bn(&pBN, pQ) || !(rtLen = BN_bn2bin(pBN, ar_Q)))
             {
                 fprintf(stdout, "[ERR] BN_dec2bn/BN_bn2bin(pQ) error.\n");
                 if (pBN != NULL) BN_free(pBN);
                 goto END;
             }
+
+            if ((szVal = MAX_RSA_PRIME_LEN - rtLen) > 0)
+            {
+                memcpy(&ar_Q[szVal], ar_Q, rtLen);
+                memset(ar_Q, 0x00, szVal);
+            }
+
             BN_free(pBN);   pBN = NULL;
         }
         // Prime 'DP'
         if (pDP != NULL && !isEncryption)
         {
-            if (!BN_dec2bn(&pBN, pDP) || !BN_bn2bin(pBN, ar_DP))
+            if (!BN_dec2bn(&pBN, pDP) || !(rtLen = BN_bn2bin(pBN, ar_DP)))
             {
                 fprintf(stdout, "[ERR] BN_dec2bn/BN_bn2bin(pDP) error.\n");
                 if (pBN != NULL) BN_free(pBN);
                 goto END;
             }
+
+            if ((szVal = MAX_RSA_PRIME_LEN - rtLen) > 0)
+            {
+                memcpy(&ar_DP[szVal], ar_DP, rtLen);
+                memset(ar_DP, 0x00, szVal);
+            }
+
             BN_free(pBN);   pBN = NULL;
         }
         // Prime 'DQ'
         if (pDQ != NULL && !isEncryption)
         {
-            if (!BN_dec2bn(&pBN, pDQ) || !BN_bn2bin(pBN, ar_DQ))
+            if (!BN_dec2bn(&pBN, pDQ) || !(rtLen = BN_bn2bin(pBN, ar_DQ)))
             {
                 fprintf(stdout, "[ERR] BN_dec2bn/BN_bn2bin(pDQ) error.\n");
                 if (pBN != NULL) BN_free(pBN);
                 goto END;
             }
+
+            if ((szVal = MAX_RSA_PRIME_LEN - rtLen) > 0)
+            {
+                memcpy(&ar_DQ[szVal], ar_DQ, rtLen);
+                memset(ar_DQ, 0x00, szVal);
+            }
+
             BN_free(pBN);   pBN = NULL;
         }
         // Inverse prime 'InvQ'
         if (pInvQ != NULL && !isEncryption)
         {
-            if (!BN_dec2bn(&pBN, pInvQ) || !BN_bn2bin(pBN, ar_InvQ))
+            if (!BN_dec2bn(&pBN, pInvQ) || !(rtLen = BN_bn2bin(pBN, ar_InvQ)))
             {
                 fprintf(stdout, "[ERR] BN_dec2bn/BN_bn2bin(pInvQ) error.\n");
                 if (pBN != NULL) BN_free(pBN);
                 goto END;
             }
+
+            if ((szVal = MAX_RSA_PRIME_LEN - rtLen) > 0)
+            {
+                memcpy(&ar_InvQ[szVal], ar_InvQ, rtLen);
+                memset(ar_InvQ, 0x00, szVal);
+            }
+
             BN_free(pBN);   pBN = NULL;
         }
     }
@@ -285,15 +405,12 @@ int EnDecryptRSA(int isEncryption, char *pInStr, char *pOutStr, char *pE, char *
         R_RSA_PUBLIC_KEY stPubKey;
         unsigned char    arRandom[MAX_RSA_MODULUS_LEN];
         int              szLen = -1;
-        memset(arRandom, 0x20, MAX_RSA_MODULUS_LEN); // test @@
-        arRandom[0] = 0x00;
-        arRandom[1] = 0x01;
-
+        
         memset(&stPubKey, 0x00, sizeof(R_RSA_PUBLIC_KEY));
         stPubKey.bits = RSA_BIT;
         memcpy(stPubKey.modulus, arMod, MAX_RSA_MODULUS_LEN);
         memcpy(stPubKey.exponent, arExp_E, MAX_RSA_MODULUS_LEN);
-
+        GenRandom(arRandom, MAX_RSA_MODULUS_LEN, 0x01, 0xff);
         szInput = strlen(arInBuf);
 
         if ((rtLen = RSAPublicEncrypt(arOutBuf, &szLen, arInBuf, szInput, &stPubKey, arRandom)) != 0)
@@ -392,6 +509,8 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    srand(time(NULL));
+
     // Read exp, mod values from file
     if (GetExpModPrimeFromFile("exponent.txt", "modulus.txt", "prime.txt",
                                arExpBuf_E, arExpBuf_D, arModBuf, arBuf_P, arBuf_Q,
@@ -446,7 +565,6 @@ int main(int argc, char **argv)
         {
             fprintf(stdout, "\n[Cipher Text]:\n%s\n", arCipherBuf);
             fprintf(stdout, "\n[Plain Text]:\n%s\n", arPlainBuf);
-            PrintStreamToHexa(arPlainBuf, strlen(arPlainBuf));
         }
     }
 
