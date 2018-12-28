@@ -31,6 +31,29 @@
     [ PKCS1 RFC3477 참고 문서 ]
      - https://tools.ietf.org/html/rfc3447#section-7.2
     
+    [ 암호화 스키마 ]
+     1) RSAES-PKCS-V1.5 : 구버전 호환성을 위해 사용하고, 신규 적용으로는 권장하지 않음.
+        - 평문의 일부가 누출되거나, 평문이 충분히 길어지면 암호 해독 공격에 취약해짐
+        - 최소 8byte 이상의 무작위 옥텟(0x00제외)을 헤더(PS)로 섞어넣어서 기본적인 보안에 활용
+        - 00 || 02 || PS || 00 || M(평문)
+         |-----11~255byte-----|
+     
+     2) RSAES-OAEP      : 신규 적용에 권장.
+        - (RSAES-OAEP = RSAEP + RSADP + EME-OAEP) == (IEEE-P1363 = IFEP-RSA + IFDP-RSA + EME-OAEP)
+        - 최대 메시지 길이 : (k - 2 - 2hLen)Byte
+          + k    : length in octets of the modulus (2048bit -> 256byte)
+          + hLen : output length in octets of hash function output for EME-OAEP
+        - 보안을 위해서는 RSAES-PKCS-V1.5과 혼용하여 사용하면 안됨
+        - EME-OAEP : 해시함수(권장:MD2/5,SHA-1)와 마스킹생성함수(권장:MGF1)를 사용하여 메시지 서명에 사용
+        - maskedSeed(seed xor seedMask) || maskedDB(DB xor dbMask)
+          seedMask: MGF(maskedDB, hLen), dbmask = MGF(seed, emLen-hLen)
+          seed: hLen바이트의 무작위 옥텟, DB = pHash(해쉬함수(인코딩 파라미터P)) || PS || 01 || M(평문)
+          PS: Generate an octet string PS consisting of emLen-||M||-2hLen-1 zero. octets. The length of PS may be 0.
+
+    [ 키 보관 ]
+     1) DER
+     2) PEM
+     3) X509
 */
 
 #define RSA_BIT 2048
