@@ -4,7 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
-@ComponentScan("com.rblee.toy")
+@ComponentScan("com.rblee.toy.controller")
 @SpringBootApplication
 public class DemoApplication {
 
